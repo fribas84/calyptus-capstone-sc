@@ -38,7 +38,7 @@ contract Wallet is Ownable, ReentrancyGuard {
     /// deposit - Deposit ERC20 tokens to the wallet
     /// @param amount amount of ERC20 tokens to Deposit
     /// @param ticker ticker of the ERC20 token to Deposit
-    function deposit(uint amount, bytes32 ticker) external tokenExist(ticker) {
+    function deposit(bytes32 ticker, uint amount) external tokenExist(ticker) {
         IERC20(tokenMapping[ticker].tokenAddress).transferFrom(
             msg.sender,
             address(this),

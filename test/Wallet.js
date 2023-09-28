@@ -64,9 +64,9 @@ describe("Wallet", () => {
   it("User can deposit Dummy Token", async () => {
     const { dummyToken, wallet, user, faucet } = await deployAndSetTokenFixture();
     await faucet.connect(user).requestTokens();
-    //await dummyToken.connect(user).approve(wallet.target, ethers.parseEther("500"));
-   // await wallet.connect(user).deposit(ticker, ethers.utils.("500"));
-    
-   // expect(await wallet.getUserTokenBalance(user.address, ticker)).to.equal(ethers.parseEther("500"));
+    const bal = await dummyToken.balanceOf(user.address);
+    await dummyToken.connect(user).approve(wallet.target, bal/BigInt(2));
+    await wallet.connect(user).deposit(ticker, bal/BigInt(2));
+    expect(await wallet.getUserTokenBalance(user.address, ticker)).to.equal(bal/BigInt(2));
   });
 });
