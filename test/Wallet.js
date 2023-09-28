@@ -54,7 +54,7 @@ describe("Wallet", () => {
       )
     ).to.be.revertedWith("Ownable: caller is not the owner");
   });
-  
+
   it("User can deposit Dummy Token", async () => {
     const { dummyToken, wallet, user, faucet } = await deployAndSetTokenFixture();
     await faucet.connect(user).requestTokens();
@@ -63,4 +63,17 @@ describe("Wallet", () => {
     await wallet.connect(user).deposit(ticker, bal/BigInt(2));
     expect(await wallet.getUserTokenBalance(user.address, ticker)).to.equal(bal/BigInt(2));
   });
+
+  it("User can deposit and withdraw Dummy Token", async () => {
+    const { dummyToken, wallet, user, faucet } = await deployAndSetTokenFixture();
+    await faucet.connect(user).requestTokens();
+    const bal = await dummyToken.balanceOf(user.address);
+    await dummyToken.connect(user).approve(wallet.target, bal/BigInt(2));
+    await wallet.connect(user).deposit(ticker, bal/BigInt(2));
+    expect(await wallet.getUserTokenBalance(user.address, ticker)).to.equal(bal/BigInt(2));
+    await wallet.connect(user).withdraw(ticker, bal/BigInt(2));
+    expect(await wallet.getUserTokenBalance(user.address, ticker)).to.equal(0);
+    expect(await dummyToken.balanceOf(user.address)).to.equal(bal);
+
+  })
 });

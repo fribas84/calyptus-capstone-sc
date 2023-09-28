@@ -48,8 +48,8 @@ contract Wallet is Ownable, ReentrancyGuard {
     }
 
     function withdraw(
-        uint amount,
-        bytes32 ticker
+        bytes32 ticker,
+        uint amount
     ) external tokenExist(ticker) nonReentrant {
         require(
             balances[msg.sender][ticker] >= amount,
