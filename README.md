@@ -16,5 +16,4 @@ cancelling orders updates the order book accordingly
 
 ## Frontend or Script
 - Create a basic frontend, which provides a user-friendly interface for users to trade tokens, deposit and withdraw tokens, and manage their orders. Connect the smart contract with the frontend using Ethers.js.
-
 - OR Write a separate script with Ethers.js to interact with the smart contract functions.
