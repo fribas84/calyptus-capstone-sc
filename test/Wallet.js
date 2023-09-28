@@ -3,6 +3,7 @@ const {
 } = require("@nomicfoundation/hardhat-toolbox/network-helpers");
 const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
 const { expect } = require("chai");
+const { ethers } = require("hardhat");
 
 const ticker = ethers.encodeBytes32String("DTK");
 describe("Wallet", () => {
@@ -74,6 +75,21 @@ describe("Wallet", () => {
     await wallet.connect(user).withdraw(ticker, bal/BigInt(2));
     expect(await wallet.getUserTokenBalance(user.address, ticker)).to.equal(0);
     expect(await dummyToken.balanceOf(user.address)).to.equal(bal);
-
+  })
+  it("User can deposit Ether through receive function", async () => {
+    const { wallet, user } = await deployFixture();
+    const bal = await ethers.provider.getBalance(user.address);
+    await user.sendTransaction({to: wallet.target, value: ethers.parseEther("10.0")});
+    expect(await wallet.getUserTokenBalance(user.address, ethers.encodeBytes32String("ETH"))).to.equal(ethers.parseEther("10.0"));
+  })
+  it("User can deposit Ether through receive function and withdraw", async () => {
+    const { wallet, user } = await deployFixture();
+   
+    await user.sendTransaction({to: wallet.target, value: ethers.parseEther("10.0")});
+    const balAfterDeposit = await ethers.provider.getBalance(user.address);
+    expect(await wallet.getUserTokenBalance(user.address, ethers.encodeBytes32String("ETH"))).to.equal(ethers.parseEther("10.0"));
+    await wallet.connect(user).withdraw(ethers.encodeBytes32String("ETH"), ethers.parseEther("10.0"));
+    expect(await wallet.getUserTokenBalance(user.address, ethers.encodeBytes32String("ETH"))).to.equal(0);
+    expect(await ethers.provider.getBalance(user.address)).gt(balAfterDeposit);
   })
 });

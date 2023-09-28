@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
+
 contract Wallet is Ownable, ReentrancyGuard {
     using Address for address payable;
     mapping(address => mapping(bytes32 => uint256)) public balances;
@@ -55,21 +56,24 @@ contract Wallet is Ownable, ReentrancyGuard {
             balances[msg.sender][ticker] >= amount,
             "Balance not sufficient"
         );
-        balances[msg.sender][ticker] = balances[msg.sender][ticker] - amount;
-        IERC20(tokenMapping[ticker].tokenAddress).transfer(msg.sender, amount);
+        if (ticker == bytes32("ETH")) {
+            balances[msg.sender][ticker] =
+                balances[msg.sender][ticker] -
+                amount;
+            payable(msg.sender).sendValue(amount);
+            return;
+        } else {
+            balances[msg.sender][ticker] =
+                balances[msg.sender][ticker] -
+                amount;
+            IERC20(tokenMapping[ticker].tokenAddress).transfer(
+                msg.sender,
+                amount
+            );
+            return;
+        }
     }
-
-    function withdrawEth(uint amount) external nonReentrant {
-        require(
-            balances[msg.sender][bytes32("ETH")] >= amount,
-            "Balance not sufficient"
-        );
-        balances[msg.sender][bytes32("ETH")] =
-            balances[msg.sender][bytes32("ETH")] -
-            amount;
-        payable(msg.sender).sendValue(amount);
-    }
-
+    
     function tokenAvailable(bytes32 ticker) public view returns (bool) {
         if (tokenMapping[ticker].tokenAddress == address(0)) {
             return false;
@@ -77,11 +81,10 @@ contract Wallet is Ownable, ReentrancyGuard {
         return true;
     }
 
-    function getUserTokenBalance(address _user, bytes32 ticker)
-        public
-        view
-        returns (uint256)
-    {
+    function getUserTokenBalance(
+        address _user,
+        bytes32 ticker
+    ) public view returns (uint256) {
         return balances[_user][ticker];
     }
 
