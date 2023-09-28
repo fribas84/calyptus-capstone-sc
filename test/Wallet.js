@@ -84,7 +84,6 @@ describe("Wallet", () => {
   })
   it("User can deposit Ether through receive function and withdraw", async () => {
     const { wallet, user } = await deployFixture();
-   
     await user.sendTransaction({to: wallet.target, value: ethers.parseEther("10.0")});
     const balAfterDeposit = await ethers.provider.getBalance(user.address);
     expect(await wallet.getUserTokenBalance(user.address, ethers.encodeBytes32String("ETH"))).to.equal(ethers.parseEther("10.0"));
@@ -92,4 +91,13 @@ describe("Wallet", () => {
     expect(await wallet.getUserTokenBalance(user.address, ethers.encodeBytes32String("ETH"))).to.equal(0);
     expect(await ethers.provider.getBalance(user.address)).gt(balAfterDeposit);
   })
+  it("User can deposit Eth through depositEther function and withdraw", async () => {
+    const { wallet, user } = await deployFixture();
+    await wallet.connect(user).depositEth({value: ethers.parseEther("10.0")});
+    const balAfterDeposit = await ethers.provider.getBalance(user.address);
+    expect(await wallet.getUserTokenBalance(user.address, ethers.encodeBytes32String("ETH"))).to.equal(ethers.parseEther("10.0"));
+    await wallet.connect(user).withdraw(ethers.encodeBytes32String("ETH"), ethers.parseEther("10.0"));
+    expect(await wallet.getUserTokenBalance(user.address, ethers.encodeBytes32String("ETH"))).to.equal(0);
+    expect(await ethers.provider.getBalance(user.address)).gt(balAfterDeposit);
+  });
 });
