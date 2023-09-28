@@ -18,10 +18,7 @@ contract Wallet is Ownable, ReentrancyGuard {
     mapping(bytes32 => Token) public tokenMapping; //Token Mapping
 
     modifier tokenExist(bytes32 ticker) {
-        require(
-            tokenMapping[ticker].tokenAddress != address(0),
-            "Token does not exist"
-        );
+        tokenAvailable(ticker);
         _;
     }
 
@@ -71,6 +68,21 @@ contract Wallet is Ownable, ReentrancyGuard {
             balances[msg.sender][bytes32("ETH")] -
             amount;
         payable(msg.sender).sendValue(amount);
+    }
+
+    function tokenAvailable(bytes32 ticker) public view returns (bool) {
+        if (tokenMapping[ticker].tokenAddress == address(0)) {
+            return false;
+        }
+        return true;
+    }
+
+    function getUserTokenBalance(address _user, bytes32 ticker)
+        public
+        view
+        returns (uint256)
+    {
+        return balances[_user][ticker];
     }
 
     receive() external payable {
