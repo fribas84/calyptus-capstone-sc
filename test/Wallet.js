@@ -62,7 +62,7 @@ describe("Wallet", () => {
     const bal = await dummyToken.balanceOf(user.address);
     await dummyToken.connect(user).approve(wallet.target, bal/BigInt(2));
     await wallet.connect(user).deposit(ticker, bal/BigInt(2));
-    expect(await wallet.getUserTokenBalance(user.address, ticker)).to.equal(bal/BigInt(2));
+    expect(await wallet.balanceOf(user.address, ticker)).to.equal(bal/BigInt(2));
   });
 
   it("User can deposit and withdraw Dummy Token", async () => {
@@ -71,33 +71,33 @@ describe("Wallet", () => {
     const bal = await dummyToken.balanceOf(user.address);
     await dummyToken.connect(user).approve(wallet.target, bal/BigInt(2));
     await wallet.connect(user).deposit(ticker, bal/BigInt(2));
-    expect(await wallet.getUserTokenBalance(user.address, ticker)).to.equal(bal/BigInt(2));
+    expect(await wallet.balanceOf(user.address, ticker)).to.equal(bal/BigInt(2));
     await wallet.connect(user).withdraw(ticker, bal/BigInt(2));
-    expect(await wallet.getUserTokenBalance(user.address, ticker)).to.equal(0);
+    expect(await wallet.balanceOf(user.address, ticker)).to.equal(0);
     expect(await dummyToken.balanceOf(user.address)).to.equal(bal);
   })
   it("User can deposit Ether through receive function", async () => {
     const { wallet, user } = await deployFixture();
     const bal = await ethers.provider.getBalance(user.address);
     await user.sendTransaction({to: wallet.target, value: ethers.parseEther("10.0")});
-    expect(await wallet.getUserTokenBalance(user.address, ethers.encodeBytes32String("ETH"))).to.equal(ethers.parseEther("10.0"));
+    expect(await wallet.balanceOf(user.address, ethers.encodeBytes32String("ETH"))).to.equal(ethers.parseEther("10.0"));
   })
   it("User can deposit Ether through receive function and withdraw", async () => {
     const { wallet, user } = await deployFixture();
     await user.sendTransaction({to: wallet.target, value: ethers.parseEther("10.0")});
     const balAfterDeposit = await ethers.provider.getBalance(user.address);
-    expect(await wallet.getUserTokenBalance(user.address, ethers.encodeBytes32String("ETH"))).to.equal(ethers.parseEther("10.0"));
+    expect(await wallet.balanceOf(user.address, ethers.encodeBytes32String("ETH"))).to.equal(ethers.parseEther("10.0"));
     await wallet.connect(user).withdraw(ethers.encodeBytes32String("ETH"), ethers.parseEther("10.0"));
-    expect(await wallet.getUserTokenBalance(user.address, ethers.encodeBytes32String("ETH"))).to.equal(0);
+    expect(await wallet.balanceOf(user.address, ethers.encodeBytes32String("ETH"))).to.equal(0);
     expect(await ethers.provider.getBalance(user.address)).gt(balAfterDeposit);
   })
   it("User can deposit Eth through depositEther function and withdraw", async () => {
     const { wallet, user } = await deployFixture();
     await wallet.connect(user).depositEth({value: ethers.parseEther("10.0")});
     const balAfterDeposit = await ethers.provider.getBalance(user.address);
-    expect(await wallet.getUserTokenBalance(user.address, ethers.encodeBytes32String("ETH"))).to.equal(ethers.parseEther("10.0"));
+    expect(await wallet.balanceOf(user.address, ethers.encodeBytes32String("ETH"))).to.equal(ethers.parseEther("10.0"));
     await wallet.connect(user).withdraw(ethers.encodeBytes32String("ETH"), ethers.parseEther("10.0"));
-    expect(await wallet.getUserTokenBalance(user.address, ethers.encodeBytes32String("ETH"))).to.equal(0);
+    expect(await wallet.balanceOf(user.address, ethers.encodeBytes32String("ETH"))).to.equal(0);
     expect(await ethers.provider.getBalance(user.address)).gt(balAfterDeposit);
   });
 });
