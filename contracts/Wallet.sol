@@ -89,7 +89,7 @@ contract Wallet is Ownable, ReentrancyGuard {
         return true;
     }
 
-    function getUserTokenBalance(
+    function balanceOf(
         address _user,
         bytes32 ticker
     ) public view returns (uint256) {

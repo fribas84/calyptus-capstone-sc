@@ -23,7 +23,7 @@ contract Dex is Wallet {
     uint public nextOrderId = 1;
     mapping(bytes32 => mapping(uint => Order[])) public orderBook;
 
-    constructor() {}
+    constructor() Wallet() {}
 
     function getOrderBook(
         bytes32 ticker,
