@@ -2,6 +2,7 @@
 pragma solidity 0.8.18;
 
 import "./Wallet.sol";
+import "hardhat/console.sol";
 
 contract Dex is Wallet {
     enum Side {

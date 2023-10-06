@@ -80,7 +80,28 @@ describe("Dex", () => {
       ).to.revertedWith("Not enough eth in your wallet");
     });
     it("User should be able to create buy order", async () => {
-
+      const { dummyToken, dex, user1 } = await loadFixture();
+      const ticker = ethers.encodeBytes32String("DTK");
+      await dex.addToken(ticker, dummyToken.target);
+      await dex
+        .connect(user1)
+        .depositEth({ value: ethers.parseEther("100.0") });
+      await dex
+        .connect(user1)
+        .createLimitOrder(0, ticker, 50, ethers.parseEther("2"));
+      const orders = await dex.getOrderBook(ticker, 0);
+      expect(orders.length).to.equal(1);
+    });
+    it("Should revert when buying funds are not enough", async () => {
+      const { dummyToken, dex, user1 } = await loadFixture();
+      const ticker = ethers.encodeBytes32String("DTK");
+      await dex.addToken(ticker, dummyToken.target);
+      await dex.connect(user1).depositEth({ value: ethers.parseEther("10.0") });
+      await expect(
+        dex
+          .connect(user1)
+          .createLimitOrder(0, ticker, 50, ethers.parseEther("2"))
+      ).to.revertedWith("Not enough eth in your wallet");
     });
   });
 });
