@@ -39,6 +39,7 @@ contract Dex is Wallet {
         uint _amount,
         uint _price
     ) public {
+
         if (_side == Side.BUY) {
             require(
                 balances[msg.sender]["ETH"] >= _amount * _price,
@@ -75,5 +76,17 @@ contract Dex is Wallet {
                 i--;
             }
         }
+        if (_side == Side.SELL) {
+            uint i = orders.length > 0 ? orders.length - 1 : 0;
+            while (i > 0) {
+                if (orders[i].price < orders[i - 1].price) {
+                    Order memory orderToMove = orders[i - 1];
+                    orders[i - 1] = orders[i];
+                    orders[i] = orderToMove;
+                }
+                i--;
+            }
+        }
+        nextOrderId++;
     }
 }
