@@ -2,7 +2,6 @@
 pragma solidity 0.8.18;
 
 import "./Wallet.sol";
-import "hardhat/console.sol";
 
 contract Dex is Wallet {
     enum Side {
@@ -39,10 +38,11 @@ contract Dex is Wallet {
         uint _amount,
         uint _price
     ) public {
-
+        
         if (_side == Side.BUY) {
+
             require(
-                balances[msg.sender]["ETH"] >= _amount * _price,
+                balances[msg.sender]["ETH"] >= (_amount * _price),
                 "Not enough eth in your wallet"
             );
         } else if (_side == Side.SELL) {
