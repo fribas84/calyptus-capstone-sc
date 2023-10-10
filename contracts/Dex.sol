@@ -38,9 +38,7 @@ contract Dex is Wallet {
         uint _amount,
         uint _price
     ) public {
-        
         if (_side == Side.BUY) {
-
             require(
                 balances[msg.sender]["ETH"] >= (_amount * _price),
                 "Not enough eth in your wallet"
@@ -87,6 +85,26 @@ contract Dex is Wallet {
                 i--;
             }
         }
+        emit OrderCreated(
+            msg.sender,
+            nextOrderId,
+            _side,
+            _ticker,
+            _amount,
+            _price,
+            block.timestamp
+        );
         nextOrderId++;
+        
     }
+
+    event OrderCreated(
+        address indexed trader,
+        uint indexed orderId,
+        Side side,
+        bytes32 indexed ticker,
+        uint amount,
+        uint price,
+        uint date
+    );
 }

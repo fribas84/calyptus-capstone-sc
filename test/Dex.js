@@ -101,9 +101,9 @@ describe("Dex", () => {
       await dex
         .connect(user1)
         .depositEth({ value: ethers.parseEther("900.0") });
-      await dex
+      expect(await dex
         .connect(user1)
-        .createLimitOrder(0, ticker, 50, ethers.parseEther("2"));
+        .createLimitOrder(0, ticker, 50, ethers.parseEther("2"))).to.emit(dex, "OrderCreated");
       const orders = await dex.getOrderBook(ticker, 0);
       expect(orders.length).to.equal(1);
     });
@@ -145,14 +145,11 @@ describe("Dex", () => {
       }
     });
 
-    it("Creating multiple sell orders should be stored in ascending order", async () => {
+    it("Creating multiple sell orders should be stored in descending order", async () => {
       const { dummyToken, dex, owner, user1, user2 } = await loadFixtureToken();
 
       //Deposit User 1
       await dex.connect(user1).depositEth({ value: ethers.parseEther("100") });
-      console.log(
-        await dex.balanceOf(user1.address, ethers.encodeBytes32String("ETH"))
-      );
       expect(
         await dex.balanceOf(user1.address, ethers.encodeBytes32String("ETH"))
       ).to.equal(ethers.parseEther("100.0"));
