@@ -8,35 +8,38 @@ import "@openzeppelin/contracts/utils/Address.sol";
 interface IERC20Mintable is IERC20 {
     function mint(address to, uint256 amount) external;
 }
+
 contract Faucet {
     IERC20Mintable public token1;
     IERC20Mintable public token2;
 
-    mapping(address => mapping(uint8 => uint256)) public lastRequest;
+    enum Token {
+        Token1,
+        Token2
+    }
+
+    mapping(address => mapping(Token => uint256)) public lastRequest;
 
     constructor(address _token1, address _token2) {
         token1 = IERC20Mintable(_token1);
-        token1 = IERC20Mintable(_token2);
+        token2 = IERC20Mintable(_token2);
     }
 
-    function requestTokens(uint8 _token) external {
-        require(_token == 1 || _token == 2, "Token not supported");
+    function requestTokens(Token _token) external {
+        require(
+            _token == Token.Token1 || _token == Token.Token2,
+            "Invalid token"
+        );
+
         require(
             block.timestamp - lastRequest[msg.sender][_token] >= 1 days,
-            "You have to wait 1 day before requesting again"
+            "You can only request tokens once per day"
         );
-        if (_token == 1) {
-            _requestToken1();
+        lastRequest[msg.sender][_token] = block.timestamp;
+        if (_token == Token.Token1) {
+            token1.mint(msg.sender, 1000 * 10 ** 18);
         } else {
-            _requestToken2();
+            token2.mint(msg.sender, 1000 * 10 ** 18);
         }
-    }
-    function _requestToken1() internal {
-        lastRequest[msg.sender][1] = block.timestamp;
-        token1.mint(msg.sender, 1000 * 10 ** 18);
-    }
-        function _requestToken2() internal {
-        lastRequest[msg.sender][2] = block.timestamp;
-        token2.mint(msg.sender, 1000 * 10 ** 18);
     }
 }
